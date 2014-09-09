@@ -1,3 +1,5 @@
+'use strict';
+
 // Batch tests
 
 process.env.NODE_ENV = 'test';
@@ -292,7 +294,6 @@ describe('batch', function() {
                 })
                 .expect(200, function(err, res) {
                     expect(err).to.not.exist;
-                    var now = new Date().getTime();
                     // Expect first one to finish within
                     expect(res.body.time1.body).to.be.ok;
                     expect(res.body.time2.body).to.be.ok;
