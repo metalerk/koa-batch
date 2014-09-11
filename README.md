@@ -1,5 +1,7 @@
-Batch Request middleware for [koa](http://koajs.com). Turn one request into many!
+Batch Request middleware for [koa](http://koajs.com)
 =======
+
+Turn one request into many with Koa Batch!
 
 Looking for [the ExpressJS version of this module](https://github.com/socialradar/batch-request)?
 
