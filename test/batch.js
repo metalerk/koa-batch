@@ -4,29 +4,15 @@
 
 process.env.NODE_ENV = 'test';
 
-var Chance = require('chance'),
-    chance = new Chance(),
+var chance = require('chance').Chance(),
     expect = require('chai').expect,
     request = require('supertest');
 
 describe('batch', function() {
     var app;
-    var batch;
 
-    before(function(done) {
-      app = require('./helpers/app')();
-      batch = require('../lib/batch-request')();
-      done();
-    });
-
-    after(function(done) {
-      app.server.close(done);
-    });
-
-    describe('basic', function() {
-        it('looks good', function() {
-            expect(batch).to.be.a('function');
-        });
+    beforeEach(function() {
+        app = require('./helpers/app')();
     });
 
     describe('test our app helper', function() {
@@ -42,6 +28,10 @@ describe('batch', function() {
     });
 
     describe('basic', function() {
+        it('looks good', function() {
+            expect(require('..').batch()).to.be.a('function');
+        });
+
         it('can handle a single request, without a method', function(done) {
             request(app)
                 .post('/batch')
@@ -59,24 +49,24 @@ describe('batch', function() {
                 });
         });
 
-      it('can batch to a relative path', function(done) {
-        request(app)
-          .post('/batch')
-          .send({
-            getName: {
-              url: '/users/1/name'
-            }
-          })
-          .expect(200, function(err, res) {
-            expect(err).to.not.exist;
-            expect(res.body).to.have.property('getName');
-            expect(res.body.getName.statusCode).to.equal(200);
-            expect(res.body.getName.body).to.be.a('string');
-            done();
-          });
-      });
+        it('can batch to a relative path', function(done) {
+            request(app)
+                .post('/batch')
+                .send({
+                    getName: {
+                        url: '/users/1/name'
+                    }
+                })
+                .expect(200, function(err, res) {
+                    expect(err).to.not.exist;
+                    expect(res.body).to.have.property('getName');
+                    expect(res.body.getName.statusCode).to.equal(200);
+                    expect(res.body.getName.body).to.be.a('string');
+                    done();
+                });
+        });
 
-      it('will handle a POST correctly', function(done) {
+        it('will handle a POST correctly', function(done) {
             request(app)
                 .post('/batch')
                 .send({
@@ -90,7 +80,7 @@ describe('batch', function() {
                     expect(res.body).to.have.property('getName');
                     expect(res.body.getName.statusCode).to.equal(200);
                     expect(res.body.getName.body).to.be.a('string');
-                    done();
+                    done(err);
                 });
         });
 
@@ -375,5 +365,9 @@ describe('batch', function() {
                 });
 
         });
+    });
+
+    afterEach(function(done) {
+        app.close(done);
     });
 });

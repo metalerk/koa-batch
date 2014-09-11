@@ -21,7 +21,7 @@ describe('header options', function() {
     });
 
     after(function(done) {
-        app.server.close(done);
+        app.close(done);
     });
 
     describe('defaultHeaders', function() {

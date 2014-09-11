@@ -9,6 +9,11 @@ module.exports = function (grunt) {
             options: { jshintrc: '.jshintrc' },
             all: ['Gruntfile.js', 'lib/**/*.js', 'test/**/*.js']
         },
+        shell: {
+            mocha: {
+                command: './node_modules/.bin/mocha --harmony'
+            }
+        },
         simplemocha: {
             options: {
                 globals: ['describe'],
@@ -20,15 +25,16 @@ module.exports = function (grunt) {
         },
         watch: {
             files: ['Gruntfile.js', 'lib/**/*.js', 'test/**/*.js'],
-            tasks: ['jshint', 'simplemocha']
+            tasks: ['jshint', 'shell:mocha']
         }
     });
 
     grunt.loadNpmTasks('grunt-bump');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-shell');
     grunt.loadNpmTasks('grunt-simple-mocha');
 
     grunt.registerTask('default', ['watch']);
-    grunt.registerTask('test', ['simplemocha']);
+    grunt.registerTask('test', ['jshint', 'shell:mocha']);
 };

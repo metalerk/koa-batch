@@ -1,44 +1,60 @@
 'use strict';
 
 // Test app
-var express = require('express'),
-    Chance = require('chance'),
-    chance = new Chance(),
-    batchRequest = require('../../lib/batch-request');
+/**
+ * npm dependencies
+ */
+var bodyparser = require('koa-bodyparser'),
+    chance = require('chance').Chance(),
+    koa = require('koa'),
+    router = require('koa-router'),
+    wait = require('co-wait');
 
-function getApp(options) {
-    var batch = batchRequest(options);
+/**
+ * our dependencies
+ */
+var koaBatch = require('../..');
 
-    var app = express();
+module.exports = function getApp(options) {
+    var batch = koaBatch.batch(options);
+    var validate = koaBatch.validate(options);
 
-    app.use(express.json());
+    var app = koa();
 
-    // A POST endpoint to use the batch middleware
-    app.post('/batch', batch.validate, batch);
+    app.use(bodyparser());
+    app.use(router(app));
+
+    app.get('/test', function* () {
+        this.body = 'test';
+    });
+
+    // A POST endpoint to use the batch middleware 
+    app.post('/batch', validate, batch);
+
     // A GET endpoint to use the batch middleware
-    app.get('/batch', batch.validate, batch);
+    app.get('/batch', validate, batch);
 
     // Let's make some fake endpoints
-    app.get('/users/:id/name', function(req, res) {
-        res.json(chance.name());
+    app.get('/users/:id/name', function* () {
+        this.body = chance.name();
     });
 
-    app.post('/users/:id/name', function(req, res) {
+    app.post('/users/:id/name', function* () {
         // If a first name is sent in, we will reflect it so we can test that it was
         // received correctly.
-        if (req.body.first) {
-            res.json(req.body.first);
-        } else {
-            res.json(chance.name());
+        var name = chance.name();
+        if (this.request.body && this.request.body.first) {
+            name = this.request.body.first;
         }
+        this.body = name;
     });
 
-    app.put('/users/:id/name', function(req, res) {
-        res.json(chance.name());
+    app.put('/users/:id/name', function* () {
+        this.body = chance.name();
     });
 
-    app.post('/users/:id/deep', function(req, res) {
-        res.json({
+    app.post('/users/:id/deep', function* () {
+        this.body = {
             email: chance.email(),
             mixed: {
                 name: chance.name(),
@@ -46,37 +62,34 @@ function getApp(options) {
                     foo: 'bar'
                 }
             }
-        });
+        };
     });
 
-    app.get('/users/:id/email', function(req, res) {
-        res.json(chance.email());
+    app.get('/users/:id/email', function* () {
+        this.body = chance.email();
     });
 
-    app.get('/users/:id/company', function(req, res) {
-        res.json(chance.capitalize(chance.word()));
+    app.get('/users/:id/company', function* () {
+        this.body = chance.capitalize(chance.word());
     });
 
-    app.get('/users/:id/hammertime', function(req, res) {
-        res.json(new Date().getTime());
+    app.get('/users/:id/hammertime', function* () {
+        this.body = new Date().getTime();
     });
 
-    app.get('/users/:id/delay', function(req, res, next) {
-        setTimeout(function() {
-            res.json(new Date().getTime());
-            next();
-        }, 250);
+    app.get('/users/:id/delay', function* () {
+        yield wait(250);
+        this.body = new Date().getTime();
     });
 
-    app.get('/header/:name', function(req, res) {
-        if ((req.params.name in req.headers)) {
-            res.json({
-                name: req.params.name,
-                value: req.headers[req.params.name]
-            });
+    app.get('/header/:name', function* () {
+        if (this.params.name in this.header) {
+            this.body = {
+                name: this.params.name,
+                value: this.header[this.params.name]
+            };
         } else {
-            res.writeHead(404);
-            res.end();
+            this.status = 404;
         }
     });
 
@@ -85,11 +98,5 @@ function getApp(options) {
         port = options.port;
     }
 
-    var server = app.listen(port);
-
-    app.server = server;
-
-    return app;
-}
-
-exports = module.exports = getApp;
+    return app.listen(port);
+};

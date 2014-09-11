@@ -1,3 +1,4 @@
+--harmony
 --require should
 --reporter spec
 --ui bdd

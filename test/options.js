@@ -5,8 +5,7 @@
 process.env.NODE_ENV = 'test';
 
 var _ = require('lodash'),
-    Chance = require('chance'),
-    chance = new Chance(),
+    chance = require('chance').Chance(),
     expect = require('chai').expect,
     methods = require('methods'),
     request = require('supertest');
@@ -46,13 +45,12 @@ chance.mixin({
 describe('options', function() {
     var app;
 
-    before(function(done) {
+    before(function() {
         app = require('./helpers/app')();
-        done();
     });
 
     after(function(done) {
-        app.server.close(done);
+        app.close(done);
     });
 
     describe('max', function() {
@@ -64,9 +62,8 @@ describe('options', function() {
                 .send(chance.batchRequest({method: 'get', size: 21, host: 'localhost', port: 3000}))
                 .expect(400, function(err, res) {
                     expect(err).to.be.null;
-                    expect(res.body.error).to.exist;
-                    expect(res.body.error.type).to.equal('ValidationError');
-                    expect(res.body.error.message).to.equal('Over the max request limit. Please limit batches to 20 requests');
+                    expect(res.error).to.exist;
+                    expect(res.text).to.equal('Over the max request limit. Please limit batches to 20 requests');
 
                     // Now let's try one that's right on the limit, it should pass.
                     request(app)
@@ -84,5 +81,4 @@ describe('options', function() {
 
     it('obeys the localOnly option when set as true');
     it('obeys the httpsOnly option when set as true');
-
 });

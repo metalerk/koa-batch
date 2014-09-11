@@ -11,8 +11,9 @@ describe('validate', function() {
     var app;
     var appAllowed;
     var batch;
+    var validate;
 
-    before(function(done) {
+    before(function() {
         app = require('./helpers/app')();
         appAllowed = require('./helpers/app')({
             port: 3001,
@@ -21,13 +22,13 @@ describe('validate', function() {
                 'localhost:3001'
             ]
         });
-        batch = require('../lib/batch-request')();
-        done();
+        batch = require('..').batch();
+        validate = require('..').validate();
     });
 
     after(function(done) {
-        appAllowed.server.close();
-        app.server.close(done);
+        appAllowed.close();
+        app.close(done);
     });
 
     describe('basic', function() {
@@ -36,8 +37,7 @@ describe('validate', function() {
         });
 
         it('has a validate method', function() {
-            expect(batch).to.have.property('validate');
-            expect(batch.validate).to.be.a('function');
+            expect(validate).to.be.a('function');
         });
 
         it('rejects non-object JSON', function(done) {
@@ -46,7 +46,9 @@ describe('validate', function() {
                 .send(chance.word())
                 .expect(400, function(err, res) {
                     expect(err).to.be.null;
-                    expect(res.body.error).to.exist;
+                    expect(res.error).to.exist;
+                    expect(res.text).to.exist;
+                    expect(res.text).to.equal('Koa Batch will only accept POST body as json');
                     done();
                 });
         });
@@ -57,8 +59,8 @@ describe('validate', function() {
                 .send({})
                 .expect(400, function(err, res) {
                     expect(err).to.be.null;
-                    expect(res.body.error).to.exist;
-                    expect(res.body.error.message).to.equal('Cannot make a batch request with an empty request object');
+                    expect(res.error).to.exist;
+                    expect(res.text).to.equal('Cannot make a batch request with an empty request object');
                     done(err);
                 });
         });
@@ -67,7 +69,7 @@ describe('validate', function() {
     describe('options', function() {
         describe('allowed hosts', function() {
             it('will accept an allowed hosts parameter', function() {
-                expect(require('../lib/batch-request')({
+                expect(require('..').batch({
                     allowedHosts: [
                         chance.domain(),
                         chance.domain()
@@ -85,8 +87,8 @@ describe('validate', function() {
                         }
                     })
                     .expect(400, function(err, res) {
-                        expect(res.body.error).to.exist;
-                        expect(res.body.error.host).to.equal('www.google.com');
+                        expect(res.error).to.exist;
+                        expect(res.text).to.equal('Cannot make batch request to a host which is not allowed: www.google.com');
                         done(err);
                     });
             });
@@ -106,8 +108,8 @@ describe('validate', function() {
                         }
                     })
                     .expect(400, function(err, res) {
-                        expect(res.body.error).to.exist;
-                        expect(res.body.error.host).to.equal('www.google.com');
+                        expect(res.error).to.exist;
+                        expect(res.text).to.equal('Cannot make batch request to a host which is not allowed: www.google.com');
                         done(err);
                     });
             });
@@ -169,9 +171,9 @@ describe('validate', function() {
                 })
                 .expect(400, function(err, res) {
                     expect(err).to.be.null;
-                    expect(res.body.error).to.exist;
-                    expect(res.body.error.type).to.equal('ValidationError');
-                    done();
+                    expect(res.error).to.exist;
+                    expect(res.text).to.equal('Invalid method');
+                    done(err);
                 });
         });
 
@@ -185,11 +187,9 @@ describe('validate', function() {
                 })
                 .expect(400, function(err, res) {
                     expect(err).to.be.null;
-                    expect(res.body.error).to.exist;
-                    expect(res.body.error.type).to.equal('ValidationError');
-                    expect(res.body.error.message).to.equal('Invalid URL');
-                    expect(res.body.error.request).to.equal('bogusUrl');
-                    done();
+                    expect(res.error).to.exist;
+                    expect(res.text).to.equal('Invalid URL');
+                    done(err);
                 });
         });
 
@@ -205,11 +205,9 @@ describe('validate', function() {
                 })
                 .expect(400, function(err, res) {
                     expect(err).to.be.null;
-                    expect(res.body.error).to.exist;
-                    expect(res.body.error.type).to.equal('ValidationError');
-                    expect(res.body.error.message).to.equal('Request body not allowed for this method');
-                    expect(res.body.error.request).to.equal('getRequestWithBody');
-                    done();
+                    expect(res.error).to.exist;
+                    expect(res.text).to.equal('Request body not allowed for this method');
+                    done(err);
                 });
         });
     });
