@@ -15,11 +15,11 @@ Download via [NPM](http://npmjs.org)
 
 [![NPM](https://nodei.co/npm/koa-batch.png?compact=true)](https://nodei.co/npm/koa-batch/)
 
-then in your app
+then in your app (example using [koa-router](https://github.com/alexmingoia/koa-router))
 
     var batch = require('koa-batch').batch();
 
-    // Use Batch Request as middleware on an endpoint you want to service batch requests (example using [koa-router](https://github.com/alexmingoia/koa-router))
+    // Use Batch Request as middleware on an endpoint you want to service batch requests
     app.post('/batch', batch);
 
 
