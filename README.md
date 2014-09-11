@@ -7,13 +7,13 @@ A simple library for batching HTTP requests
 
 [View Documentation](http://batch-request.socialradar.com)
 
-[![Build Status](https://travis-ci.org/socialradar/batch-request.png?branch=master)](https://travis-ci.org/socialradar/batch-request) [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
+[![Build Status](https://travis-ci.org/socialradar/koa-batch.png?branch=master)](https://travis-ci.org/socialradar/koa-batch) [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
 
 ## QuickStart
 
 Download via [NPM](http://npmjs.org)
 
-[![NPM](https://nodei.co/npm/batch-request.png?compact=true)](https://nodei.co/npm/batch-request/)
+[![NPM](https://nodei.co/npm/koa-batch.png?compact=true)](https://nodei.co/npm/koa-batch/)
 
 then in your app
 
@@ -35,4 +35,4 @@ And that's it!
 
 Proudly written in Washington, D.C. by:
 
-[![SocialRadar](https://raw.github.com/socialradar/batch-request/master/social-radar-black-orange.png)](http://socialradar.com)
+[![SocialRadar](https://raw.github.com/socialradar/koa-batch/master/social-radar-black-orange.png)](http://socialradar.com)
